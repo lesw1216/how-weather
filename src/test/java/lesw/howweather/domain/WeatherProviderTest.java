@@ -11,7 +11,11 @@ class WeatherProviderTest {
 
     @Test
     void weatherProvider() {
-        Weather weather = weatherProvider.extractLocalWeather();
+        String today = "";
+        String local = "";
+//        Weather weather = weatherProvider.extractLocalWeather();
+        Weather weather = weatherProvider.extractLocalWeather(local);
         log.info(weather.toString());
+
     }
 }

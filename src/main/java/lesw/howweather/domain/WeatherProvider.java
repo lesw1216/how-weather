@@ -16,6 +16,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Slf4j
 @Component
@@ -23,12 +25,24 @@ public class WeatherProvider {
     private final String serviceKey = "lFeu%2Fb%2BZnfLhhQ1gX%2Ban4fh8lxJu2Td4pbDBTAgj5qkEAP28wtzj%2FGLUb%2BWt8v%2BljhjjHpM598E7Qp%2BPsv%2Fr8g%3D%3D";
     private final String url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
 
+    public Weather extractLocalWeather(String local) {
+        URL extractURL = extractURL();
+        String resultJson = requestData(extractURL);
+        return parserJson(resultJson);
+    }
+
     private URL extractURL() {
-        String urlBuilder = url + "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + serviceKey + /*Service Key*/
+        String date = extractDate();
+        String time = extractTime();
+        log.info("date = " + date);
+        log.info("time = " + time);
+
+        String urlBuilder = url +
+                "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + serviceKey + /*Service Key*/
                 "&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1", StandardCharsets.UTF_8) + /*페이지번호*/
                 "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("10", StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
                 "&" + URLEncoder.encode("dataType", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("JSON", StandardCharsets.UTF_8) + /*요청자료형식(XML/JSON) Default: XML*/
-                "&" + URLEncoder.encode("base_date", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("20230718", StandardCharsets.UTF_8) + /*‘21년 6월 28일발표*/
+                "&" + URLEncoder.encode("base_date", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(date, StandardCharsets.UTF_8) + /*‘21년 6월 28일발표*/
                 "&" + URLEncoder.encode("base_time", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("0500", StandardCharsets.UTF_8) + /*05시 발표*/
                 "&" + URLEncoder.encode("nx", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("55", StandardCharsets.UTF_8) + /*예보지점의 X 좌표값*/
                 "&" + URLEncoder.encode("ny", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("127", StandardCharsets.UTF_8); /*예보지점의 Y 좌표값*/
@@ -109,9 +123,15 @@ public class WeatherProvider {
         return weather;
     }
 
-    public Weather extractLocalWeather() {
-        URL extractURL = extractURL();
-        String resultJson = requestData(extractURL);
-        return parserJson(resultJson);
+    private String extractTime() {
+        LocalTime localTime = LocalTime.now();
+        int hour = localTime.getHour();
+
+        return hour + "00";
+    }
+    private String extractDate() {
+        String now = LocalDate.now().toString();
+        String[] nowList = now.split("-"); // 2023-07-21
+        return nowList[0] + nowList[1] + nowList[2]; // 20230721
     }
 }
