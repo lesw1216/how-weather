@@ -167,9 +167,13 @@ public class WeatherProvider {
     private String extractTime() {
         LocalTime localTime = LocalTime.now();
         int hour = localTime.getHour();
+        int minute = localTime.getMinute();
 
-        if (hour == 0)
-            return "0000";
+        if (minute < 30)
+            hour -= 1;
+
+        if (hour < 10)
+            return "0" + hour + "00";
 
         return hour + "00";
     }
