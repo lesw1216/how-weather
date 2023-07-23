@@ -23,14 +23,28 @@ import java.time.LocalTime;
 @Component
 public class WeatherProvider {
     private final String serviceKey = "lFeu%2Fb%2BZnfLhhQ1gX%2Ban4fh8lxJu2Td4pbDBTAgj5qkEAP28wtzj%2FGLUb%2BWt8v%2BljhjjHpM598E7Qp%2BPsv%2Fr8g%3D%3D";
-    private final String url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
+//    private final String url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst";
+//    private final String url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst";
 
+    // 초단기 실황 Call Back URL
+    private final String url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+
+    /**
+     * Get Weather of local
+     * @apiNote
+     * @param local 현재 지역
+     * @return Weather
+     */
     public Weather extractLocalWeather(String local) {
         URL extractURL = extractURL();
         String resultJson = requestData(extractURL);
         return parserJson(resultJson);
     }
 
+    /**
+     * 요청할 URL의 패턴을 생성한다.
+     * @return URL
+     */
     private URL extractURL() {
         String date = extractDate();
         String time = extractTime();
@@ -40,12 +54,12 @@ public class WeatherProvider {
         String urlBuilder = url +
                 "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + serviceKey + /*Service Key*/
                 "&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1", StandardCharsets.UTF_8) + /*페이지번호*/
-                "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("10", StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
+                "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("60", StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
                 "&" + URLEncoder.encode("dataType", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("JSON", StandardCharsets.UTF_8) + /*요청자료형식(XML/JSON) Default: XML*/
                 "&" + URLEncoder.encode("base_date", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(date, StandardCharsets.UTF_8) + /*‘21년 6월 28일발표*/
-                "&" + URLEncoder.encode("base_time", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("0500", StandardCharsets.UTF_8) + /*05시 발표*/
-                "&" + URLEncoder.encode("nx", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("55", StandardCharsets.UTF_8) + /*예보지점의 X 좌표값*/
-                "&" + URLEncoder.encode("ny", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("127", StandardCharsets.UTF_8); /*예보지점의 Y 좌표값*/
+                "&" + URLEncoder.encode("base_time", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(time, StandardCharsets.UTF_8) + /*05시 발표*/
+                "&" + URLEncoder.encode("nx", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("56", StandardCharsets.UTF_8) + /*예보지점의 X 좌표값*/
+                "&" + URLEncoder.encode("ny", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("125", StandardCharsets.UTF_8); /*예보지점의 Y 좌표값*/
         try {
             return new URL(urlBuilder);
         } catch (MalformedURLException e) {
@@ -53,6 +67,11 @@ public class WeatherProvider {
         }
     }
 
+    /**
+     * extractURL()에서 반환된 URL을 실제로 해당 Open API에 요청
+     * @param requestUrl 생성된 URL
+     * @return 응답 받은 JSON 결과 반환
+     */
     private String requestData(URL requestUrl) {
         try {
             HttpURLConnection conn = (HttpURLConnection) requestUrl.openConnection();
@@ -92,30 +111,52 @@ public class WeatherProvider {
             throw new RuntimeException(e);
         }
 
+        // Object -> JSONObject
         JSONObject jsonObj = (JSONObject) parseObj;
+
+        // response 객체 꺼내기, Object Type
         Object responseObj = jsonObj.get("response");
-        log.info(responseObj.toString());
+        log.info("response = " + responseObj.toString());
+        // =======================================================
 
+        // 꺼낸 Object 타입의 responseObj를 JSONObject로 변환
         JSONObject responseJson = (JSONObject) responseObj;
+
+        // body 객체 꺼내기, Object Type
         Object bodyObj = responseJson.get("body");
-        log.info(bodyObj.toString());
+        log.info("body = " + bodyObj.toString());
+        // ========================================================
 
+        // 꺼낸 Object 타입의 bodyObj를 JSONObject로 변환
         JSONObject bodyJson = (JSONObject) bodyObj;
-        Object itemsObj = bodyJson.get("items");
-        log.info(itemsObj.toString());
 
+        // bodyJson에서 Items 객체 JSON 꺼내기
+        Object itemsObj = bodyJson.get("items");
+        log.info("items = " + itemsObj.toString());
+        // =========================================================
+
+        // 꺼낸 Object 타입의 itemsObj를 JSONObject로 변환
         JSONObject itemsJson = (JSONObject) itemsObj;
+        // item 배열을 꺼내기 위해 JSONArray로 변환
         JSONArray itemArr = (JSONArray) itemsJson.get("item");
+        log.info("item = " + itemArr.toString());
 
         Weather weather = new Weather();
         if (itemArr.size() > 0) {
             for (Object itemObj : itemArr) {
-                log.info(itemObj.toString());
+                log.info("itemArr = " + itemObj.toString());
 
                 JSONObject itemJson = (JSONObject) itemObj;
-                log.info(itemJson.get("category").toString());
-                if (itemJson.get("category").toString().equals("TMP")) {
-                    weather.setTmp(itemJson.get("fcstValue").toString());
+
+                String category = itemJson.get("category").toString();
+
+                switch (category) {
+                    case "T1H":
+                        weather.setTMP(itemJson.get("obsrValue").toString());
+                        break;
+                    case "REH":
+                        weather.setREH(itemJson.get("obsrValue").toString());
+                        break;
                 }
             }
         }
@@ -127,11 +168,14 @@ public class WeatherProvider {
         LocalTime localTime = LocalTime.now();
         int hour = localTime.getHour();
 
+        if (hour == 0)
+            return "0000";
+
         return hour + "00";
     }
     private String extractDate() {
         String now = LocalDate.now().toString();
-        String[] nowList = now.split("-"); // 2023-07-21
+        String[] nowList = now.split("-"); // 2023-07-21, '-' slice
         return nowList[0] + nowList[1] + nowList[2]; // 20230721
     }
 }

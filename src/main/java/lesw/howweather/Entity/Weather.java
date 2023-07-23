@@ -8,5 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @ToString
 public class Weather {
-    private String tmp;
+    private String TMP;
+    private String REH;
 }
