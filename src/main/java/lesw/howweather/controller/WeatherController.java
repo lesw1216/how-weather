@@ -1,11 +1,11 @@
 package lesw.howweather.controller;
 
 import lesw.howweather.Entity.Weather;
+import lesw.howweather.domain.WeatherProvider;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,9 +13,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class WeatherController {
 
+    private final WeatherProvider weatherProvider;
+
+    @Autowired
+    public WeatherController(WeatherProvider weatherProvider) {
+        this.weatherProvider = weatherProvider;
+    }
+
     @GetMapping("/weather")
     public ResponseEntity<Weather> GetLocalWeather() {
         log.info("GetLocalWeather call");
-        return new ResponseEntity<Weather>(new Weather(), HttpStatus.OK);
+        Weather extractedWeather = weatherProvider.extractLocalWeather("지역을 입력하세요.");
+        return new ResponseEntity<Weather>(extractedWeather, HttpStatus.OK);
     }
 }
