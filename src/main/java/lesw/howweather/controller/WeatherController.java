@@ -20,7 +20,7 @@ public class WeatherController {
         this.weatherProvider = weatherProvider;
     }
 
-    @GetMapping("/weather")
+    @GetMapping("/api/weather")
     public ResponseEntity<Weather> GetLocalWeather() {
         log.info("GetLocalWeather call");
         Weather extractedWeather = weatherProvider.extractLocalWeather("지역을 입력하세요.");
