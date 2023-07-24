@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -21,8 +22,11 @@ public class WeatherController {
     }
 
     @GetMapping("/api/weather")
-    public ResponseEntity<Weather> GetLocalWeather() {
+    public ResponseEntity<Weather> GetLocalWeather(@RequestParam("city") String city,
+                                                   @RequestParam("district") String district,
+                                                   @RequestParam("dong") String dong) {
         log.info("GetLocalWeather call");
+        log.info(city + " " + district + " " + dong);
         Weather extractedWeather = weatherProvider.extractLocalWeather("지역을 입력하세요.");
         return new ResponseEntity<Weather>(extractedWeather, HttpStatus.OK);
     }
