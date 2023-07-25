@@ -1,5 +1,6 @@
 package lesw.howweather.domain;
 
+import lesw.howweather.Entity.LocalPosition;
 import lesw.howweather.Entity.Weather;
 import lombok.extern.slf4j.Slf4j;
 import org.json.simple.JSONArray;
@@ -28,6 +29,7 @@ public class WeatherProvider {
 
     // 초단기 실황 Call Back URL
     private final String url = "http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst";
+    private LocalPosition userPosition = null;
 
     /**
      * Get Weather of local
@@ -35,7 +37,8 @@ public class WeatherProvider {
      * @param local 현재 지역
      * @return Weather
      */
-    public Weather extractLocalWeather(String local) {
+    public Weather extractLocalWeather(LocalPosition localPosition) {
+        userPosition = localPosition;
         URL extractURL = extractURL();
         String resultJson = requestData(extractURL);
         return parserJson(resultJson);
@@ -58,8 +61,8 @@ public class WeatherProvider {
                 "&" + URLEncoder.encode("dataType", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("JSON", StandardCharsets.UTF_8) + /*요청자료형식(XML/JSON) Default: XML*/
                 "&" + URLEncoder.encode("base_date", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(date, StandardCharsets.UTF_8) + /*‘21년 6월 28일발표*/
                 "&" + URLEncoder.encode("base_time", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(time, StandardCharsets.UTF_8) + /*05시 발표*/
-                "&" + URLEncoder.encode("nx", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("56", StandardCharsets.UTF_8) + /*예보지점의 X 좌표값*/
-                "&" + URLEncoder.encode("ny", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("125", StandardCharsets.UTF_8); /*예보지점의 Y 좌표값*/
+                "&" + URLEncoder.encode("nx", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(userPosition.getX(), StandardCharsets.UTF_8) + /*예보지점의 X 좌표값*/
+                "&" + URLEncoder.encode("ny", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(userPosition.getY(), StandardCharsets.UTF_8); /*예보지점의 Y 좌표값*/
         try {
             return new URL(urlBuilder);
         } catch (MalformedURLException e) {
