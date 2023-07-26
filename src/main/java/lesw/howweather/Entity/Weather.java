@@ -10,4 +10,5 @@ import lombok.*;
 public class Weather {
     private String TMP;
     private String REH;
+    private String SKY;
 }
