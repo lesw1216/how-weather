@@ -74,8 +74,10 @@ public class NormalRestAPI {
         int hour = localTime.getHour();
         int minute = localTime.getMinute();
 
-        if (minute < 30)
+        if (hour > 0 && minute < 30)
             hour -= 1;
+        else if (hour == 0 && minute < 30)
+            hour = 23;
 
         if (hour < 10)
             return "0" + hour + "00";
@@ -83,8 +85,19 @@ public class NormalRestAPI {
         return hour + "00";
     }
     protected String extractDate() {
-        String now = LocalDate.now().toString();
-        String[] nowList = now.split("-"); // 2023-07-21, '-' slice
+        LocalTime localTime = LocalTime.now();
+        int hour = localTime.getHour();
+        int minute = localTime.getMinute();
+
+        log.info("hour = " + hour);
+        log.info("minute = " + minute);
+
+        String date = LocalDate.now().toString();
+        if (hour == 0 && minute < 30) {
+            date = LocalDate.now().minusDays(1).toString();
+        }
+
+        String[] nowList = date.split("-"); // 2023-07-21, '-' slice
         return nowList[0] + nowList[1] + nowList[2]; // 20230721
     }
 
@@ -127,7 +140,7 @@ public class NormalRestAPI {
         JSONArray itemArr = (JSONArray) itemsJson.get("item");
         log.info("item = " + itemArr.toString());
 
-        if (itemArr.size() > 0) {
+        if (!itemArr.isEmpty()) {
             for (Object itemObj : itemArr) {
                 log.info("itemArr = " + itemObj.toString());
 
