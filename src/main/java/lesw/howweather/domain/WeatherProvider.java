@@ -27,7 +27,7 @@ public class WeatherProvider {
     /**
      * Get Weather of local
      * @apiNote
-     * @param local 현재 지역
+     * @param  localPosition
      * @return Weather
      */
     public Weather extractLocalWeather(LocalPosition localPosition) {

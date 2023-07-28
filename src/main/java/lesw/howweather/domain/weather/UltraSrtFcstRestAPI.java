@@ -31,29 +31,16 @@ public class UltraSrtFcstRestAPI extends NormalRestAPI{
         return hour + "30";
     }
 
-//    @Override
-//    protected String extractDate() {
-//        LocalTime localTime = LocalTime.now();
-//        int hour = localTime.getHour();
-//        int minute = localTime.getMinute();
-//
-//        log.info("hour = " + hour);
-//        log.info("minute = " + minute);
-//
-//        String date = LocalDate.now().toString();
-//        if (hour == 0 && minute < 30) {
-//            date = LocalDate.now().minusDays(1).toString();
-//        }
-//
-//        String[] nowList = date.split("-"); // 2023-07-21, '-' slice
-//        return nowList[0] + nowList[1] + nowList[2]; // 20230721
-//    }
-
     @Override
     protected Weather parserJson(String jsonResult) {
         LocalTime localTime = LocalTime.now();
         int hour = localTime.getHour();
+        int minute = localTime.getMinute();
+        if (minute >= 30)
+            hour += 1;
+
         String stringTime = String.valueOf(hour);
+
         if (hour < 10)
             stringTime = "0" + hour;
         stringTime += "00";
