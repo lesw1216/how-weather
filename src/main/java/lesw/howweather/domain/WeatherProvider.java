@@ -43,6 +43,7 @@ public class WeatherProvider {
 
         UltraSrtFcstRestAPI UltraSrtFcstRestAPI = new UltraSrtFcstRestAPI();
         weather = UltraSrtFcstRestAPI.requestAPI(serviceKey, UltraSrtFcsturl, localPosition, weather);
+        log.info(weather.toString());
         return weather;
     }
 }

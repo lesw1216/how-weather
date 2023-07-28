@@ -55,7 +55,10 @@ public class UltraSrtFcstRestAPI extends NormalRestAPI{
         int hour = localTime.getHour();
         String stringTime = String.valueOf(hour);
         if (hour < 10)
-            stringTime = "0" + hour + "00";
+            stringTime = "0" + hour;
+        stringTime += "00";
+
+        log.info("stringTime = " + stringTime);
 
         JSONParser parser = new JSONParser();
         Object parseObj = null;
@@ -106,6 +109,7 @@ public class UltraSrtFcstRestAPI extends NormalRestAPI{
                 String fcstValue = itemJson.get("fcstValue").toString();
 
                 if (category.equals("SKY") && fcstTime.equals(stringTime)) {
+                    setWeather.setSKY(fcstValue);
                     switch (fcstValue) {
                         case "1":
                             setWeather.setSKY("맑음");
@@ -121,6 +125,7 @@ public class UltraSrtFcstRestAPI extends NormalRestAPI{
             }
         }
 
+        log.info(setWeather.toString());
         return setWeather;
     }
 }
