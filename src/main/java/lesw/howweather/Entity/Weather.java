@@ -12,4 +12,6 @@ public class Weather {
     private String REH;
     private String SKY;
     private String POP;
+    private String TMN;
+    private String TMX;
 }

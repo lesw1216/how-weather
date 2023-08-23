@@ -7,7 +7,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Slf4j
@@ -32,7 +31,7 @@ public class UltraSrtFcstRestAPI extends NormalRestAPI{
     }
 
     @Override
-    protected Weather parserJson(String jsonResult) {
+    protected Weather getValue(JSONArray itemArr) {
         LocalTime localTime = LocalTime.now();
         int hour = localTime.getHour();
         int minute = localTime.getMinute();
@@ -46,44 +45,6 @@ public class UltraSrtFcstRestAPI extends NormalRestAPI{
         stringTime += "00";
 
         log.info("stringTime = " + stringTime);
-
-        JSONParser parser = new JSONParser();
-        Object parseObj = null;
-        try {
-            parseObj = parser.parse(jsonResult);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Object -> JSONObject
-        JSONObject jsonObj = (JSONObject) parseObj;
-
-        // response 객체 꺼내기, Object Type
-        Object responseObj = jsonObj.get("response");
-        log.info("response = " + responseObj.toString());
-        // =======================================================
-
-        // 꺼낸 Object 타입의 responseObj를 JSONObject로 변환
-        JSONObject responseJson = (JSONObject) responseObj;
-
-        // body 객체 꺼내기, Object Type
-        Object bodyObj = responseJson.get("body");
-        log.info("body = " + bodyObj.toString());
-        // ========================================================
-
-        // 꺼낸 Object 타입의 bodyObj를 JSONObject로 변환
-        JSONObject bodyJson = (JSONObject) bodyObj;
-
-        // bodyJson에서 Items 객체 JSON 꺼내기
-        Object itemsObj = bodyJson.get("items");
-        log.info("items = " + itemsObj.toString());
-        // =========================================================
-
-        // 꺼낸 Object 타입의 itemsObj를 JSONObject로 변환
-        JSONObject itemsJson = (JSONObject) itemsObj;
-        // item 배열을 꺼내기 위해 JSONArray로 변환
-        JSONArray itemArr = (JSONArray) itemsJson.get("item");
-        log.info("item = " + itemArr.toString());
 
         if (!itemArr.isEmpty()) {
             for (Object itemObj : itemArr) {

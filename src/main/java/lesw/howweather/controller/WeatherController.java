@@ -41,6 +41,6 @@ public class WeatherController {
 
         Weather extractedWeather = weatherService.extractWeather(optionalLocalPosition.get());
 
-        return new ResponseEntity<Weather>(extractedWeather, HttpStatus.OK);
+        return new ResponseEntity<>(extractedWeather, HttpStatus.OK);
     }
 }

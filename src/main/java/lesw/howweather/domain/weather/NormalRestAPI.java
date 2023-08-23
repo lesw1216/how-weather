@@ -33,7 +33,7 @@ public class NormalRestAPI {
         String urlBuilder = restUrl +
                 "?" + URLEncoder.encode("serviceKey", StandardCharsets.UTF_8) + "=" + serviceKey + /*Service Key*/
                 "&" + URLEncoder.encode("pageNo", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1", StandardCharsets.UTF_8) + /*페이지번호*/
-                "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("60", StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
+                "&" + URLEncoder.encode("numOfRows", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("1000", StandardCharsets.UTF_8) + /*한 페이지 결과 수*/
                 "&" + URLEncoder.encode("dataType", StandardCharsets.UTF_8) + "=" + URLEncoder.encode("JSON", StandardCharsets.UTF_8) + /*요청자료형식(XML/JSON) Default: XML*/
                 "&" + URLEncoder.encode("base_date", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(date, StandardCharsets.UTF_8) + /*‘21년 6월 28일발표*/
                 "&" + URLEncoder.encode("base_time", StandardCharsets.UTF_8) + "=" + URLEncoder.encode(time, StandardCharsets.UTF_8) + /*05시 발표*/
@@ -63,7 +63,7 @@ public class NormalRestAPI {
             rd.close();
             conn.disconnect();
 
-            return parserJson(sb.toString());
+            return getValue(parserJson(sb.toString()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -101,7 +101,7 @@ public class NormalRestAPI {
         return nowList[0] + nowList[1] + nowList[2]; // 20230721
     }
 
-    protected Weather parserJson(String jsonResult) {
+    protected JSONArray parserJson(String jsonResult) {
         JSONParser parser = new JSONParser();
         Object parseObj = null;
         try {
@@ -139,7 +139,10 @@ public class NormalRestAPI {
         // item 배열을 꺼내기 위해 JSONArray로 변환
         JSONArray itemArr = (JSONArray) itemsJson.get("item");
         log.info("item = " + itemArr.toString());
+        return itemArr;
+    }
 
+    protected Weather getValue(JSONArray itemArr) {
         if (!itemArr.isEmpty()) {
             for (Object itemObj : itemArr) {
                 log.info("itemArr = " + itemObj.toString());

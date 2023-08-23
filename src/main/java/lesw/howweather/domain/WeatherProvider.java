@@ -47,7 +47,9 @@ public class WeatherProvider {
         weather = UltraSrtFcstRestAPI.requestAPI(serviceKey, ultraSrtFcstUrl, localPosition, weather);
 
         VilageFcstRestAPI vilageFcstRestAPI = new VilageFcstRestAPI();
-        vilageFcstRestAPI.requestAPI(serviceKey, vilageFcstUrl, localPosition, weather);
+        weather = vilageFcstRestAPI.requestAPI(serviceKey, vilageFcstUrl, localPosition, weather);
+        weather = vilageFcstRestAPI.getTmnRestAPI(serviceKey, vilageFcstUrl, localPosition, weather);
+        weather = vilageFcstRestAPI.getTmxRestAPI(serviceKey, vilageFcstUrl, localPosition, weather);
         log.info(weather.toString());
         return weather;
     }
